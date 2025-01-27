@@ -6,16 +6,32 @@ import {
   History,
   Settings,
   PlusCircle,
-  Search,
+  Store,
 } from "lucide-react";
 
 const menuItems = [
   { icon: <Home className="w-5 h-5" />, label: "Dashboard", active: true },
-  { icon: <BookOpen className="w-5 h-5" />, label: "My Skills" },
-  { icon: <Search className="w-5 h-5" />, label: "Skill Requests" },
-  { icon: <History className="w-5 h-5" />, label: "Transactions" },
-  { icon: <MessageSquare className="w-5 h-5" />, label: "Chat" },
-  { icon: <Settings className="w-5 h-5" />, label: "Settings" },
+  {
+    icon: <BookOpen className="w-5 h-5" />,
+    label: "My Skills",
+    path: "/skills",
+  },
+  {
+    icon: <Store className="w-5 h-5" />,
+    label: "Market Place",
+    path: "/marketplace",
+  },
+  {
+    icon: <History className="w-5 h-5" />,
+    label: "Transactions",
+    path: "/transcations",
+  },
+  { icon: <MessageSquare className="w-5 h-5" />, label: "Chat", path: "/chat" },
+  {
+    icon: <Settings className="w-5 h-5" />,
+    label: "Settings",
+    path: "/settings",
+  },
 ];
 
 const Sidebar = ({ onClose }: { onClose: () => void }) => {
@@ -33,8 +49,9 @@ const Sidebar = ({ onClose }: { onClose: () => void }) => {
 
       <nav className="flex-1 px-4 space-y-2">
         {menuItems.map((item, index) => (
-          <motion.button
+          <motion.a
             key={item.label}
+            href={item.path}
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.1 }}
@@ -47,7 +64,7 @@ const Sidebar = ({ onClose }: { onClose: () => void }) => {
           >
             {item.icon}
             <span>{item.label}</span>
-          </motion.button>
+          </motion.a>
         ))}
       </nav>
 
@@ -58,7 +75,9 @@ const Sidebar = ({ onClose }: { onClose: () => void }) => {
           className="w-full btn-primary flex items-center justify-center space-x-2"
         >
           <PlusCircle className="w-5 h-5" />
-          <span>Post New Skill</span>
+          <span onClick={() => (window.location.href = "/post-request skill")}>
+            Post New Skill
+          </span>
         </motion.button>
       </div>
     </div>

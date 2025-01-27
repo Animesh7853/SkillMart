@@ -1,17 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  Home,
-  BookOpen,
-  MessageSquare,
-  History,
-  Settings,
-  Menu,
-  X,
-  Bell,
-  Search,
-  ChevronDown,
-} from "lucide-react";
+import { Menu, X, Bell, Search, ChevronDown } from "lucide-react";
 import Sidebar from "./Sidebar";
 import UserOverview from "./UserOverview";
 import SkillSummary from "./SkillSummary";
