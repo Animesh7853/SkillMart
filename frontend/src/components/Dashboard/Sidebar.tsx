@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { path } from "framer-motion/client";
 import {
   Home,
   BookOpen,
@@ -8,30 +9,29 @@ import {
   PlusCircle,
   Store,
 } from "lucide-react";
-import { useHref } from "react-router-dom";
 
 const menuItems = [
   { icon: <Home className="w-5 h-5" />, label: "Dashboard", active: true },
   {
     icon: <BookOpen className="w-5 h-5" />,
     label: "My Skills",
-    useHref: "/skills",
+    path: "/skills",
   },
   {
     icon: <Store className="w-5 h-5" />,
     label: "Market Place",
-    useHref: "/marketplace",
+    path: "/marketplace",
   },
   {
     icon: <History className="w-5 h-5" />,
     label: "Transactions",
-    useHref: "/transcations",
+    path: "/transcations",
   },
   { icon: <MessageSquare className="w-5 h-5" />, label: "Chat", path: "/chat" },
   {
     icon: <Settings className="w-5 h-5" />,
     label: "Settings",
-    useHref: "/settings",
+    path: "/settings",
   },
 ];
 
