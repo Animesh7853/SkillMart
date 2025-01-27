@@ -8,29 +8,30 @@ import {
   PlusCircle,
   Store,
 } from "lucide-react";
+import { useHref } from "react-router-dom";
 
 const menuItems = [
   { icon: <Home className="w-5 h-5" />, label: "Dashboard", active: true },
   {
     icon: <BookOpen className="w-5 h-5" />,
     label: "My Skills",
-    path: "/skills",
+    useHref: "/skills",
   },
   {
     icon: <Store className="w-5 h-5" />,
     label: "Market Place",
-    path: "/marketplace",
+    useHref: "/marketplace",
   },
   {
     icon: <History className="w-5 h-5" />,
     label: "Transactions",
-    path: "/transcations",
+    useHref: "/transcations",
   },
   { icon: <MessageSquare className="w-5 h-5" />, label: "Chat", path: "/chat" },
   {
     icon: <Settings className="w-5 h-5" />,
     label: "Settings",
-    path: "/settings",
+    useHref: "/settings",
   },
 ];
 
