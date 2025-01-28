@@ -60,10 +60,10 @@ const AuthPage = () => {
             </p>
             <div className="grid grid-cols-2 gap-4">
               {[
-                { count: "10K+", label: "Active Users" },
-                { count: "50K+", label: "Skills Exchanged" },
-                { count: "95%", label: "Satisfaction Rate" },
-                { count: "24/7", label: "Support" },
+                { count: "100%", label: "Verified Skills Only" },
+                { count: "Advanced", label: "Secure Transactions" },
+                { count: "Tailored", label: "Custom Skill Matches" },
+                { count: "AI-Powered", label: "Smart Recommendations" },
               ].map((stat) => (
                 <motion.div
                   key={stat.label}
