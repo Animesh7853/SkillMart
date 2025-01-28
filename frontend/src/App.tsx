@@ -4,6 +4,7 @@ import Dashboard from "./pages/Dashboard";
 import MarketPlace from "./pages/MarketPlace";
 import PostRequestSkill from "./pages/PostRequstSkillPage";
 import MySkills from "./pages/MySkills";
+import AuthPage from "./pages/Auth";
 function App() {
   return (
     <BrowserRouter>
@@ -13,6 +14,7 @@ function App() {
         <Route path="/marketplace" element={<MarketPlace />} />
         <Route path="/post-request-skill" element={<PostRequestSkill />} />
         <Route path="/skills" element={<MySkills />} />
+        <Route path="/auth" element={<AuthPage />} />
       </Routes>
     </BrowserRouter>
   );

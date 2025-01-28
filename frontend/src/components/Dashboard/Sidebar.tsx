@@ -76,7 +76,7 @@ const Sidebar = ({ onClose }: { onClose: () => void }) => {
           className="w-full btn-primary flex items-center justify-center space-x-2"
         >
           <PlusCircle className="w-5 h-5" />
-          <span onClick={() => (window.location.href = "/post-request skill")}>
+          <span onClick={() => (window.location.href = "/post-request-skill")}>
             Post New Skill
           </span>
         </motion.button>
