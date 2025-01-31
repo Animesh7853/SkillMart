@@ -84,39 +84,61 @@ module.exports = router;
 // OTP Verification route
 router.post('/verify-otp', async (req, res) => {
     const { userId, otp } = req.body;
+    const client = await pool.connect(); // Start transaction
 
     try {
-        // Fetch user by ID and check OTP
-        const query = `SELECT otp_code, otp_expires_at, is_verified FROM users WHERE id = $1`;
-        const result = await pool.query(query, [userId]);
+        await client.query("BEGIN");
+
+        // Fetch user details
+        const query = `SELECT otp_code, otp_expires_at, is_verified, credits FROM users WHERE id = $1`;
+        const result = await client.query(query, [userId]);
 
         if (result.rows.length === 0) {
+            await client.query("ROLLBACK");
             return res.status(404).json({ error: 'User not found.' });
         }
 
-        const { otp_code, otp_expires_at, is_verified } = result.rows[0];
+        const { otp_code, otp_expires_at, is_verified, credits } = result.rows[0];
 
         if (is_verified) {
+            await client.query("ROLLBACK");
             return res.status(400).json({ error: 'Account already verified.' });
         }
 
         if (otp_code !== otp) {
+            await client.query("ROLLBACK");
             return res.status(400).json({ error: 'Invalid OTP.' });
         }
 
         if (new Date() > otp_expires_at) {
+            await client.query("ROLLBACK");
             return res.status(400).json({ error: 'OTP has expired.' });
         }
 
-        // Mark the account as verified and remove OTP
-        await pool.query(`UPDATE users SET is_verified = TRUE, otp_code = NULL WHERE id = $1`, [userId]);
+        // Mark account as verified and add 200 credits
+        const updateQuery = `
+            UPDATE users 
+            SET is_verified = TRUE, otp_code = NULL, credits = credits + 200 
+            WHERE id = $1 
+            RETURNING id, is_verified, credits
+        `;
+        const updatedUser = await client.query(updateQuery, [userId]);
 
-        res.status(200).json({ message: 'Account verified successfully.' });
+        await client.query("COMMIT"); // Commit transaction
+
+        res.status(200).json({
+            message: 'Account verified successfully.',
+            user: updatedUser.rows[0]
+        });
     } catch (error) {
+        await client.query("ROLLBACK"); // Rollback in case of an error
         console.error('Error during OTP verification:', error);
         res.status(500).json({ error: 'OTP verification failed. Please try again later.' });
+    } finally {
+        client.release();
     }
 });
+
 
 // Login route
 router.post('/login', async (req, res) => {
