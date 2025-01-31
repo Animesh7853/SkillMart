@@ -40,7 +40,7 @@ app.get('/', (req, res) => {
 // Register and login routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/skill', require('./routes/skill'));
-
+app.use('/api/skill-exchange', require('./routes/skill-exchange'));
 // Start the server
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
