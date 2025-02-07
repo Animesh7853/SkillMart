@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 interface LoginFormProps {
   onSwitchToSignup: () => void;
@@ -11,13 +13,51 @@ const LoginForm: React.FC<LoginFormProps> = ({ onSwitchToSignup }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-    setIsLoading(false);
+
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/auth/login`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'Login failed');
+      }
+
+      // Store token and user ID in localStorage
+      localStorage.setItem('token', data.jwtToken);
+      localStorage.setItem('userId', data.userId);
+
+      // Show success message
+      toast.success('Login successful!');
+
+      // Redirect to dashboard
+      navigate('/dashboard');
+
+    } catch (error) {
+      // Handle specific error cases
+      const errorMessage = error instanceof Error ? error.message : 'Login failed';
+      
+      if (errorMessage.includes('not verified')) {
+        toast.error('Please verify your account first');
+      } else if (errorMessage.includes('Invalid email or password')) {
+        toast.error('Invalid email or password');
+      } else {
+        toast.error('Login failed. Please try again later.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
