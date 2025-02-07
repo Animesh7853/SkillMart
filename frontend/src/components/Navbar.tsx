@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Menu, X, Moon, Sun } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isDark, setIsDark] = useState(true);
+  const navigate = useNavigate();
 
   return (
     <nav className="fixed w-full z-50 bg-white/80 dark:bg-dark-bg/80 backdrop-blur-lg border-b border-gray-200 dark:border-dark-border">
@@ -38,6 +39,7 @@ const Navbar = () => {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               className="btn-primary"
+              onClick={() => navigate('/auth')}
             >
               Sign In
             </motion.button>
@@ -70,6 +72,7 @@ const Navbar = () => {
             <motion.button
               whileTap={{ scale: 0.95 }}
               className="w-full btn-primary mt-4"
+              onClick={() => navigate('/auth')}
             >
               Sign In
             </motion.button>
