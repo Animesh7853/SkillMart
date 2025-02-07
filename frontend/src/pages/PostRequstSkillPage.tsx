@@ -2,11 +2,22 @@ import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Upload, X, CheckCircle, Clock, Info } from "lucide-react";
 import { useDropzone } from "react-dropzone";
-
+import { toast } from "react-toastify";
 const categories = [
   {
     label: "Development",
-    subcategories: ["Web", "Mobile", "Backend", "Frontend"],
+    subcategories: [
+      "Web",
+      "Mobile",
+      "Backend",
+      "Frontend",
+      "Fullstack",
+      "AI",
+      "ML",
+      "Data Science",
+      "Blockchain",
+      "Game Development",
+    ],
   },
   {
     label: "Design",
@@ -17,7 +28,7 @@ const categories = [
 ];
 
 const PostRequestSkill = () => {
-  const [activeTab, setActiveTab] = useState<"post" | "request">("post");
+  const [activeTab, setActiveTab] = useState<"offer" | "request">("offer");
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("");
   const [subcategory, setSubcategory] = useState("");
@@ -29,6 +40,7 @@ const PostRequestSkill = () => {
   const [previewUrls, setPreviewUrls] = useState<string[]>([]);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [showSuccessToast, setShowSuccessToast] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const onDrop = useCallback(
     (acceptedFiles: File[]) => {
@@ -68,18 +80,72 @@ const PostRequestSkill = () => {
     if (!description) newErrors.description = "Description is required";
     if (!duration) newErrors.duration = "Duration is required";
     if (!credits) newErrors.credits = "Credits is required";
-    if (activeTab === "post" && !proficiency)
-      newErrors.proficiency = "Proficiency is required";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = () => {
-    if (validateForm()) {
-      // Handle form submission
-      setShowSuccessToast(true);
-      setTimeout(() => setShowSuccessToast(false), 3000);
+  interface FormData {
+    title: string;
+    category: string;
+    description: string;
+    credit_cost: number;
+    images: string[];
+    type: "offer" | "request";
+  }
+
+  interface ErrorResponse {
+    errors?: Record<string, string>;
+  }
+
+  const handleSubmit = async (e: React.FormEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    setLoading(true);
+    console.log(title, category, subcategory, description, duration, credits);
+    const jwtToken =
+      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YjcwMzUyNi0yNTZkLTRiYjItYWYxYy03OWE0ZmRlN2Q2M2EiLCJlbWFpbCI6ImFtYmVya29pcnVAZ21haWwuY29tIiwiaWF0IjoxNzM4OTM3MDM4LCJleHAiOjE3Mzg5NDA2Mzh9.zvxwnQ8RhGxGLQN9Cgubxopw_RoOfvFH6s8GtRvY2qM"; // Fetch token dynamically
+    console.log(jwtToken);
+    if (!jwtToken) {
+      toast.error("Authentication token is missing");
+      return;
+    }
+
+    const data = {
+      title: title, // Taken from state
+      category: category, // Ensure it matches API's expected categories
+      description: description,
+      credit_cost: credits,
+      images: previewUrls.length > 0 ? previewUrls : [],
+      type: activeTab === "offer" ? "offer" : "request",
+    };
+
+    try {
+      const response = await fetch(
+        `https://skill-mart.vercel.app/api/skill/post`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${jwtToken}`,
+          },
+          body: JSON.stringify(data),
+        }
+      );
+      console.log(response);
+      if (response.ok) {
+        const result = await response.json();
+        localStorage.setItem("skillId", result.id);
+        toast.success("Skill posted successfully");
+        setLoading(false);
+      } else {
+        const errorData = await response.json();
+        setErrors(errorData.errors || {});
+        toast.error("Failed to post skill");
+        setLoading(false);
+      }
+    } catch (error) {
+      toast.error("An error occurred while posting the skill");
+      setLoading(false);
     }
   };
 
@@ -91,10 +157,10 @@ const PostRequestSkill = () => {
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            onClick={() => setActiveTab("post")}
+            onClick={() => setActiveTab("offer")}
             className={`flex-1 py-3 px-6 rounded-lg font-semibold transition-colors
                       ${
-                        activeTab === "post"
+                        activeTab === "offer"
                           ? "bg-primary-500 text-white"
                           : "bg-white dark:bg-dark-card text-gray-600 dark:text-gray-400"
                       }`}
@@ -124,7 +190,7 @@ const PostRequestSkill = () => {
             className="card p-6"
           >
             <h2 className="text-2xl font-bold mb-6">
-              {activeTab === "post" ? "Post Your Skill" : "Request a Skill"}
+              {activeTab === "offer" ? "Post Your Skill" : "Request a Skill"}
             </h2>
 
             {/* Title */}
@@ -217,7 +283,7 @@ const PostRequestSkill = () => {
                 rows={5}
                 className="input"
                 placeholder={`Describe what you'll ${
-                  activeTab === "post" ? "offer" : "need"
+                  activeTab === "offer" ? "offer" : "need"
                 } in detail`}
               />
               {errors.description && (
@@ -229,29 +295,6 @@ const PostRequestSkill = () => {
 
             {/* Duration and Credits */}
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium mb-2">
-                  Duration
-                  <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={duration}
-                  onChange={(e) => {
-                    setDuration(e.target.value);
-                    setErrors((prev) => ({ ...prev, duration: "" }));
-                  }}
-                  className="input"
-                >
-                  <option value="">Select Duration</option>
-                  <option value="1-3">1-3 days</option>
-                  <option value="4-7">4-7 days</option>
-                  <option value="1-2">1-2 weeks</option>
-                  <option value="2+">2+ weeks</option>
-                </select>
-                {errors.duration && (
-                  <p className="mt-1 text-sm text-red-500">{errors.duration}</p>
-                )}
-              </div>
               <div>
                 <label className="block text-sm font-medium mb-2">
                   Credits
@@ -274,35 +317,6 @@ const PostRequestSkill = () => {
               </div>
             </div>
 
-            {/* Proficiency (only for Post) */}
-            {activeTab === "post" && (
-              <div className="mb-6">
-                <label className="block text-sm font-medium mb-2">
-                  Proficiency Level
-                  <span className="text-red-500">*</span>
-                </label>
-                <select
-                  value={proficiency}
-                  onChange={(e) => {
-                    setProficiency(e.target.value);
-                    setErrors((prev) => ({ ...prev, proficiency: "" }));
-                  }}
-                  className="input"
-                >
-                  <option value="">Select Proficiency</option>
-                  <option value="beginner">Beginner</option>
-                  <option value="intermediate">Intermediate</option>
-                  <option value="advanced">Advanced</option>
-                  <option value="expert">Expert</option>
-                </select>
-                {errors.proficiency && (
-                  <p className="mt-1 text-sm text-red-500">
-                    {errors.proficiency}
-                  </p>
-                )}
-              </div>
-            )}
-
             {/* File Upload */}
             <div className="mb-6">
               <label className="block text-sm font-medium mb-2">
@@ -324,8 +338,7 @@ const PostRequestSkill = () => {
                   Drag & drop files here, or click to select files
                 </p>
                 <p className="text-xs text-gray-500 mt-1">
-                  Max 3 files. Supported formats: PNG, JPG, GIF, PDF. Max size:
-                  5MB
+                  Max 3 files. Supported formats: PNG, JPG, JPEG.
                 </p>
               </div>
               {errors.files && (
@@ -360,10 +373,25 @@ const PostRequestSkill = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={handleSubmit}
-                className="btn-primary flex-1"
+                disabled={loading}
+                className="btn-primary flex-1 flex items-center justify-center gap-2 px-4 py-2"
               >
-                {activeTab === "post" ? "Post Skill" : "Submit Request"}
+                {loading ? (
+                  <>
+                    <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></span>
+                    <span>
+                      {activeTab === "offer"
+                        ? "Posting Skill..."
+                        : "Submitting Request..."}
+                    </span>
+                  </>
+                ) : activeTab === "offer" ? (
+                  "Post Skill"
+                ) : (
+                  "Submit Request"
+                )}
               </motion.button>
+
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -430,12 +458,6 @@ const PostRequestSkill = () => {
                       </div>
                     )}
                   </div>
-                  {activeTab === "post" && proficiency && (
-                    <div className="mb-4">
-                      <span className="font-semibold">Proficiency: </span>
-                      <span className="capitalize">{proficiency}</span>
-                    </div>
-                  )}
                   {previewUrls.length > 0 && (
                     <div className="grid grid-cols-3 gap-4">
                       {previewUrls.map((url, index) => (
@@ -472,7 +494,7 @@ const PostRequestSkill = () => {
           >
             <CheckCircle className="w-5 h-5" />
             <span>
-              Successfully {activeTab === "post" ? "posted" : "requested"}{" "}
+              Successfully {activeTab === "offer" ? "posted" : "requested"}{" "}
               skill!
             </span>
           </motion.div>
