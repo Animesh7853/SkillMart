@@ -8,13 +8,14 @@ import AuthPage from "./pages/Auth";
 import SettingsPage from "./pages/Setting";
 import ChatPage from "./pages/Chat";
 import ProfilePage from "./pages/Profile";
-import { Toaster } from 'react-hot-toast';
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function App() {
   return (
     <>
-      <Toaster position="top-right" />
       <BrowserRouter>
+        <ToastContainer />
         <Routes>
           <Route path="/" element={<Landing />} />
           <Route path="/dashboard" element={<Dashboard />} />
