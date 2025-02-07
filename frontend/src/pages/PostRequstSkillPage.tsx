@@ -102,8 +102,7 @@ const PostRequestSkill = () => {
     e.preventDefault();
     setLoading(true);
     console.log(title, category, subcategory, description, duration, credits);
-    const jwtToken =
-      "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOiI2YjcwMzUyNi0yNTZkLTRiYjItYWYxYy03OWE0ZmRlN2Q2M2EiLCJlbWFpbCI6ImFtYmVya29pcnVAZ21haWwuY29tIiwiaWF0IjoxNzM4OTM3MDM4LCJleHAiOjE3Mzg5NDA2Mzh9.zvxwnQ8RhGxGLQN9Cgubxopw_RoOfvFH6s8GtRvY2qM"; // Fetch token dynamically
+    const jwtToken = localStorage.getItem("token");
     console.log(jwtToken);
     if (!jwtToken) {
       toast.error("Authentication token is missing");
